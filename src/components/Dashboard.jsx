@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getCurrentUser, logout } from '../lib/auth'
 import { Play, Info, LogOut, Lock, X } from 'lucide-react'
 import './Dashboard.css'
@@ -7,6 +7,24 @@ function Dashboard() {
   const [user, setUser] = useState(null)
   const [scrolled, setScrolled] = useState(false)
   const [showInfoModal, setShowInfoModal] = useState(false)
+  const purchaseFiredRef = useRef(false)
+
+  const handleDashboardClick = () => {
+    if (purchaseFiredRef.current) return
+    purchaseFiredRef.current = true
+    try {
+      if (typeof window !== 'undefined' && window.fbq) {
+        window.fbq('track', 'Purchase', {
+          content_name: 'Comunidade da Escala',
+          content_category: 'Comunidade',
+          currency: 'BRL',
+          value: 47.0,
+        })
+      }
+    } catch (e) {
+      console.error('Erro ao disparar evento de compra:', e)
+    }
+  }
 
   useEffect(() => {
     const currentUser = getCurrentUser()
@@ -73,7 +91,7 @@ function Dashboard() {
   ]
 
   return (
-    <div className="netflix-dashboard">
+    <div className="netflix-dashboard" onClick={handleDashboardClick}>
       {/* Navigation */}
       <nav className={`netflix-nav ${scrolled ? 'black' : ''}`}>
         <div className="nav-left">

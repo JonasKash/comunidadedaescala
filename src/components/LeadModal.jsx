@@ -39,16 +39,19 @@ const LeadModal = ({ isOpen, onClose, onSuccess }) => {
         throw new Error('Erro ao enviar dados');
       }
 
-      // Dispara evento de inicialização de compra no Facebook Pixel
-      // IMPORTANTE: Disparar APENAS após sucesso do backend
-      if (window.fbq) {
-        window.fbq('track', 'InitiateCheckout', {
-          content_name: 'Comunidade da Escala',
-          content_category: 'Comunidade',
-          currency: 'BRL',
-          value: 47.00,
-          event_id: eventId
-        });
+      // Depois de enviar os dados ao webhook: dispara o pixel de inicialização de compra (InitiateCheckout)
+      try {
+        if (typeof window !== 'undefined' && window.fbq) {
+          window.fbq('track', 'InitiateCheckout', {
+            content_name: 'Comunidade da Escala',
+            content_category: 'Comunidade',
+            currency: 'BRL',
+            value: 47.00,
+            event_id: eventId
+          });
+        }
+      } catch (fbError) {
+        console.error('Erro ao disparar pixel de inicialização de compra:', fbError);
       }
 
       if (onSuccess) {
