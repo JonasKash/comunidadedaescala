@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Volume2, VolumeX } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
 
 const HERO_VIDEOS = [
@@ -11,15 +12,23 @@ const HERO_VIDEOS = [
 const Hero = () => {
   const { openModal } = useModal();
   const [videoIndex, setVideoIndex] = useState(0);
+  const [isMuted, setIsMuted] = useState(true);
   const videoRefs = useRef([]);
 
   useEffect(() => {
     const video = videoRefs.current[videoIndex];
     if (video) {
       video.currentTime = 0;
+      video.muted = isMuted;
       video.play().catch(() => {});
     }
   }, [videoIndex]);
+
+  useEffect(() => {
+    videoRefs.current.forEach((v) => {
+      if (v) v.muted = isMuted;
+    });
+  }, [isMuted]);
 
   const handleVideoEnded = () => {
     setVideoIndex((prev) => (prev + 1) % HERO_VIDEOS.length);
@@ -105,12 +114,20 @@ const Hero = () => {
                     ref={(el) => { videoRefs.current[index] = el; }}
                     className={`hero-story-video ${index === videoIndex ? 'active' : 'hidden'}`}
                     src={src}
-                    muted
+                    muted={isMuted}
                     playsInline
                     onEnded={handleVideoEnded}
                     {...(index === videoIndex ? { autoPlay: true } : {})}
                   />
                 ))}
+                <button
+                  type="button"
+                  className="hero-video-mute-btn"
+                  onClick={() => setIsMuted((m) => !m)}
+                  aria-label={isMuted ? 'Ativar som' : 'Desativar som'}
+                >
+                  {isMuted ? <VolumeX size={22} /> : <Volume2 size={22} />}
+                </button>
                 <div className="hero-story-overlay">
                   <div className="hero-story-overlay-top" />
                   <div className="hero-story-overlay-bottom" />
@@ -319,6 +336,28 @@ const Hero = () => {
           overflow: hidden;
           box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
           border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .hero-video-mute-btn {
+          position: absolute;
+          bottom: 12px;
+          right: 12px;
+          z-index: 3;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          border: none;
+          background: rgba(0, 0, 0, 0.6);
+          color: #fff;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.2s, transform 0.2s;
+        }
+        .hero-video-mute-btn:hover {
+          background: rgba(0, 0, 0, 0.8);
+          transform: scale(1.05);
         }
 
         .hero-story-video {
