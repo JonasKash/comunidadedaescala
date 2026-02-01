@@ -38,40 +38,28 @@ function Dashboard() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // PageView do Meta Pixel na /dashboard
+  // PageView + Inicialização de compra (InitiateCheckout) na /dashboard
   useEffect(() => {
     try {
-      if (typeof window !== 'undefined' && window.fbq) {
-        window.fbq('track', 'PageView', {
-          content_name: 'Dashboard - Comunidade da Escala',
-          content_category: 'Dashboard',
-        })
+      if (typeof window === 'undefined' || !window.fbq) return
+      window.fbq('track', 'PageView', {
+        content_name: 'Dashboard - Comunidade da Escala',
+        content_category: 'Dashboard',
+      })
+      const eventId = `ic_${Date.now()}_${Math.random().toString(36).substring(2)}`
+      window.fbq('track', 'InitiateCheckout', {
+        content_name: 'Comunidade da Escala',
+        content_category: 'Comunidade',
+        currency: 'BRL',
+        value: 47.0,
+        event_id: eventId,
+      })
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('from') === 'cta') {
+        window.history.replaceState({}, '', '/dashboard')
       }
     } catch (e) {
-      console.error('Erro ao disparar PageView no dashboard:', e)
-    }
-  }, [])
-
-  // Quando veio do CTA da página principal (?from=cta): dispara o mesmo pixel InitiateCheckout do formulário
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const params = new URLSearchParams(window.location.search)
-    if (params.get('from') !== 'cta') return
-    try {
-      if (window.fbq) {
-        const eventId = `ic_${Date.now()}_${Math.random().toString(36).substring(2)}`
-        window.fbq('track', 'InitiateCheckout', {
-          content_name: 'Comunidade da Escala',
-          content_category: 'Comunidade',
-          currency: 'BRL',
-          value: 47.0,
-          event_id: eventId,
-        })
-      }
-      // Remove o parâmetro da URL para não disparar de novo ao recarregar
-      window.history.replaceState({}, '', '/dashboard')
-    } catch (e) {
-      console.error('Erro ao disparar InitiateCheckout no dashboard:', e)
+      console.error('Erro ao disparar pixel no dashboard:', e)
     }
   }, [])
 
