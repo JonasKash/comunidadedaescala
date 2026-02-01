@@ -1,16 +1,16 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Check } from 'lucide-react';
-import { useModal } from '../context/ModalContext';
+import { useNavigate } from 'react-router-dom';
 
 const WhatYouGet = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const { openModal } = useModal();
+  const navigate = useNavigate();
 
   const handleCTAClick = (e) => {
     e.preventDefault();
-    openModal();
+    navigate('/dashboard?from=cta');
   };
 
   const benefitsLeft = [

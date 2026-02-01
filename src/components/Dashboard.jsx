@@ -38,6 +38,29 @@ function Dashboard() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Quando veio do CTA da página principal (?from=cta): dispara o mesmo pixel InitiateCheckout do formulário
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('from') !== 'cta') return
+    try {
+      if (window.fbq) {
+        const eventId = `ic_${Date.now()}_${Math.random().toString(36).substring(2)}`
+        window.fbq('track', 'InitiateCheckout', {
+          content_name: 'Comunidade da Escala',
+          content_category: 'Comunidade',
+          currency: 'BRL',
+          value: 47.0,
+          event_id: eventId,
+        })
+      }
+      // Remove o parâmetro da URL para não disparar de novo ao recarregar
+      window.history.replaceState({}, '', '/dashboard')
+    } catch (e) {
+      console.error('Erro ao disparar InitiateCheckout no dashboard:', e)
+    }
+  }, [])
+
   useEffect(() => {
     if (!showInfoModal) return
     const handleEscape = (e) => {

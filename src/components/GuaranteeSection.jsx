@@ -1,15 +1,15 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
-import { useModal } from '../context/ModalContext';
+import { useNavigate } from 'react-router-dom';
 
 const GuaranteeSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
-  const { openModal } = useModal();
+  const navigate = useNavigate();
 
   const handleCTAClick = (e) => {
     e.preventDefault();
-    openModal();
+    navigate('/dashboard?from=cta');
   };
 
   return (
